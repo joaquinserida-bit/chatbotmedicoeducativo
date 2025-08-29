@@ -1,39 +1,25 @@
-import os
 from flask import Flask, request, jsonify
-from openai import OpenAI
+import os
 
+# Render busca esta variable "app"
 app = Flask(__name__)
-client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
 @app.route("/")
 def home():
-    return "✅ Servidor de Chatbot Médico funcionando en Render"
+    return {"message": "Servidor funcionando correctamente 🚀"}
 
 @app.route("/chat", methods=["POST"])
 def chat():
     data = request.get_json()
     user_message = data.get("message", "")
 
-    if not user_message:
-        return jsonify({"error": "No se recibió mensaje"}), 400
+    # Ejemplo simple de respuesta
+    if "cáncer" in user_message.lower():
+        respuesta = "Puedo ayudarte con información sobre síntomas y prevención del cáncer. ¿Qué deseas saber en específico?"
+    else:
+        respuesta = "Soy un asistente médico. Pregúntame sobre síntomas relacionados con el cáncer."
 
-    try:
-        # Llamada al modelo de OpenAI
-        response = client.chat.completions.create(
-            model="gpt-4o-mini",
-            messages=[
-                {"role": "system", "content": "Eres un asistente médico que escucha con empatía y ofrece información sobre síntomas y riesgos de cáncer. No reemplazas la opinión de un médico, solo orientas."},
-                {"role": "user", "content": user_message}
-            ],
-            max_tokens=250
-        )
-
-        reply = response.choices[0].message.content
-
-        return jsonify({"reply": reply})
-
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
+    return jsonify({"response": respuesta})
 
 
 if __name__ == "__main__":
